@@ -9,6 +9,13 @@ function lightUp(t) {
   const c = t ? t.dataset.c : null;
   document.body.classList.toggle('from-card', !!t && t.classList.contains('card'));
   document.querySelectorAll('[data-c]').forEach(el => el.classList.toggle('on', !!c && el.dataset.c === c));
+  // light up the header of every section that uses this chord (sections and chords come back in page order)
+  let sec = null;
+  document.querySelectorAll('#sheet .sec').forEach(s => s.classList.remove('on'));
+  if (c) document.querySelectorAll('#sheet .sec, #sheet [data-c]').forEach(el => {
+    if (el.classList.contains('sec')) sec = el;
+    else if (sec && el.dataset.c === c) { sec.classList.add('on'); sec.style.setProperty('--h', el.style.getPropertyValue('--h')); }
+  });
 }
 // the tapped chord's diagram pops up when its card is scrolled off screen (or hidden)
 function peek(c) {

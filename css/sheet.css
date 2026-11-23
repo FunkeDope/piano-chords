@@ -41,7 +41,9 @@ body.practicing #sheet .ch,body.practicing #sheet .ly{cursor:pointer}
 body.from-card #sheet .ch:not(.on),body.from-card #sheet .ly:not(.on),body.from-card #sheet .tab,body.from-card #sheet .notes{opacity:.25}
 /* a card is selected: fade everything else on the sheet too, including plain text (section names, | bar lines, N.C.) */
 body.from-card #sheet{color:color-mix(in srgb,var(--fg) 25%,var(--bg))}
-body.from-card #sheet .sec,body.from-card #sheet .nc,body.from-card #sheet .walk{opacity:.25}
+body.from-card #sheet .sec:not(.on),body.from-card #sheet .nc,body.from-card #sheet .walk{opacity:.25}
+/* ...but the headers of sections that use the chord stay lit, tinted in its colour */
+body.from-card #sheet .sec.on{color:var(--fg);font-weight:700;background:oklch(.7 .15 var(--h) / .3);border-radius:3px}
 body.from-card.plain #sheet .ly:not(.on){color:var(--fg)}
 /* a card is selected: drop the 7th-chord shading everywhere else so only that chord stands out */
 body.from-card #sheet .ch.ext:not(.on),body.from-card #sheet .ly.ext:not(.on){background:none}
