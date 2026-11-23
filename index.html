@@ -1046,13 +1046,19 @@ function histTr(){ const h=getHist(), e=h.find(x=>x.text===$('tin').value); if(e
 // ---- move songs between browsers / sites: Export writes a JSON backup, Import merges one in ----
 const BACKUP_APP='piano-chord-sheet';
 function histMsg(t){ const m=$('histMsg'); if(m){ m.textContent=t; m.hidden=!t; } }
-function exportSongs(){
-  const data=JSON.stringify({app:BACKUP_APP,version:1,exported:new Date().toISOString(),songs:getHist()},null,1), n=getHist().length;
-  try{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type:'application/json'})); a.download='piano-chord-songs.json'; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000); }catch(e){}
+// Inside the Claude viewer pages can't download directly: files go through its "downloads" capability (the viewer asks you to confirm).
+// Anywhere else (GitHub Pages, a local file) a normal browser download is used.
+let DL=null; try{ if(window.claude&&typeof window.claude.use==='function') window.claude.use('downloads').then(d=>{DL=d;},()=>{}); }catch(e){}
+async function exportSongs(){
+  const data=JSON.stringify({app:BACKUP_APP,version:1,exported:new Date().toISOString(),songs:getHist()},null,1), n=getHist().length, name='piano-chord-songs.json';
+  const done=`Exported ${n} song${n===1?'':'s'} to ${name}. On the other site: Songs → Import that file.`;
+  if(DL){ try{ await DL.save({filename:name,data}); histMsg(done); return; }
+    catch(e){ if(e&&e.code==='declined'){ histMsg('Export cancelled.'); return; } } }          // other failures fall through to the clipboard
+  else if(!window.claude){ try{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type:'application/json'})); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000); histMsg(done); return; }catch(e){} }
   const fallback=()=>{ const t=$('tin'); t.value=data; t.focus(); t.select(); $('tTitle').value=''; $('tTitle').dataset.auto='0';
-    histMsg(`Exported ${n} songs. If no file downloaded, copy everything in the box above, then paste it into the Songs box on the other site and press Render.`); };
-  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(data).then(()=>histMsg(`Exported ${n} songs to piano-chord-songs.json, and copied to your clipboard. On the other site: Songs → Import, or paste into the box and press Render.`),fallback);
-  else fallback();
+    histMsg(`Copy everything in the box above (${n} songs), then on the other site paste it into the Songs box and press Render.`); };
+  try{ await navigator.clipboard.writeText(data); histMsg(`Copied ${n} songs to your clipboard. On the other site: open Songs, paste into the box and press Render.`); }
+  catch(e){ fallback(); }
 }
 // returns true when the text was a backup (and was imported)
 function importSongs(text){
