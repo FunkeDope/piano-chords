@@ -1,7 +1,7 @@
 // Page interactions that aren't about the music: linking sheet <-> cards on hover/tap, the peek card,
 // popover placement, the inversion tooltip, and moving the toolbar into a panel on phones.
 import * as Practice from './practice.js';
-import { $, MOBILE, isMobile } from './util.js';
+import { $, store, MOBILE, isMobile } from './util.js';
 
 // ---- hover/tap link between sheet and cards ----
 // lights up every place a chord is played (and its card), dims the rest
@@ -17,7 +17,40 @@ function peek(c) {
   const card = document.querySelector(`#cards .card[data-c="${CSS.escape(c)}"]`); if (!card) { box.hidden = true; return; }
   const r = card.getBoundingClientRect(), seen = card.offsetParent && r.top >= 0 && r.bottom <= innerHeight;
   if (seen) { box.hidden = true; return; }
-  box.innerHTML = card.outerHTML; box.querySelector('.card').classList.remove('on'); box.hidden = false;
+  box.innerHTML = '<div class="grip" aria-hidden="true"><span></span></div>' + card.outerHTML; box.querySelector('.card').classList.remove('on'); box.hidden = false;
+  placePeek();
+}
+
+// ---- the peek card can be dragged anywhere; its spot is remembered ----
+let peekPos = store.getJSON('peekPos', null);   // {x, y} of the top-left corner, or null = default spot
+function placePeek() {
+  const box = $('peek'); if (!peekPos || box.hidden) return;
+  const w = box.offsetWidth, h = box.offsetHeight;
+  peekPos.x = Math.max(4, Math.min(peekPos.x, innerWidth - w - 4)); peekPos.y = Math.max(4, Math.min(peekPos.y, innerHeight - h - 4));
+  box.classList.add('moved'); box.style.left = peekPos.x + 'px'; box.style.top = peekPos.y + 'px';
+}
+function initPeekDrag() {
+  const box = $('peek'); let dragged = false;
+  box.addEventListener('pointerdown', e => {
+    if (e.target.closest('button')) return;
+    const r = box.getBoundingClientRect(), ox = e.clientX - r.left, oy = e.clientY - r.top, sx = e.clientX, sy = e.clientY;
+    dragged = false; box.setPointerCapture(e.pointerId);
+    const move = ev => {
+      if (!dragged && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 6) return;   // small wobble = still a tap (tap closes it)
+      dragged = true; box.classList.add('dragging');
+      peekPos = { x: ev.clientX - ox, y: ev.clientY - oy }; placePeek();
+    };
+    const up = () => {
+      box.removeEventListener('pointermove', move); box.removeEventListener('pointerup', up); box.removeEventListener('pointercancel', up);
+      box.classList.remove('dragging'); if (dragged) store.setJSON('peekPos', peekPos);
+    };
+    box.addEventListener('pointermove', move); box.addEventListener('pointerup', up); box.addEventListener('pointercancel', up);
+  });
+  // a drag ends with a click: swallow it so the card stays open
+  box.addEventListener('click', e => { if (dragged) { e.stopPropagation(); dragged = false; } });
+  // double-tap the grip to put it back in its default spot
+  box.addEventListener('dblclick', e => { if (!e.target.closest('.grip')) return; peekPos = null; store.remove('peekPos'); box.classList.remove('moved'); box.style.left = box.style.top = ''; });
+  addEventListener('resize', placePeek);
 }
 function initChordLinks() {
   document.addEventListener('pointerover', e => { if (e.pointerType === 'mouse') lightUp(e.target.closest('.ch,.ly,.card')); });
@@ -80,6 +113,7 @@ function initMobileControls() {
 
 export function initUI() {
   initChordLinks();
+  initPeekDrag();
   initPopovers();
   initTooltip();
   initMobileControls();
