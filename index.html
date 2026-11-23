@@ -37,7 +37,8 @@ button{font:inherit;flex:none;white-space:nowrap;display:inline-flex;align-items
 #pastePop .row input{flex:1;min-width:0;font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
 #hist{max-height:220px;overflow:auto;margin-top:12px;width:min(560px,calc(100vw - 56px))}
 #hist:empty{display:none}
-#hist .hh{font-size:12px;color:var(--mut);margin-bottom:4px}
+#hist .hh{font-size:12px;color:var(--mut);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+#histMsg{font-size:12px;margin:2px 0 6px}
 #hist .hi{display:flex;align-items:center;gap:8px;padding:2px 0}
 #hist .hl{flex:1;min-width:0;justify-content:flex-start;height:30px;font-size:14px}
 #hist .hl span{overflow:hidden;text-overflow:ellipsis}
@@ -263,6 +264,7 @@ body.from-card #sheet .ch.on{box-shadow:0 0 0 3px oklch(var(--L) var(--C) var(--
   <textarea id="tin" placeholder="Paste the guitar tab here (chords above lyrics)"></textarea>
   <div class="row"><input id="tTitle" placeholder="Song name (optional)" aria-label="Song name"><button id="clearBtn" title="Empty the box">Clear</button><button id="go" class="primary">Render</button></div>
   <div id="hist"></div>
+  <input type="file" id="impFile" accept=".json,application/json,.txt" hidden>
 </div>
 
 <div id="setPop" popover>
@@ -1028,7 +1030,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowRight'){e.preventDefault();Practice.step(1);}
   if(e.key==='ArrowLeft'){e.preventDefault();Practice.step(-1);}
 },true);
-$('go').addEventListener('click',()=>{state.tr=null;render();saveHist();try{$('pastePop').hidePopover();}catch(e){} requestAnimationFrame(autoSizeCards);});
+$('go').addEventListener('click',()=>{ if(importSongs($('tin').value)) return; state.tr=null;render();saveHist();try{$('pastePop').hidePopover();}catch(e){} requestAnimationFrame(autoSizeCards);});
 // ---- song history (this browser only) ----
 const getHist=()=>{try{const h=JSON.parse(localStorage.getItem('history')||'[]');return Array.isArray(h)?h:[];}catch(e){return [];}};
 const setHist=h=>{try{localStorage.setItem('history',JSON.stringify(h.slice(0,50)));}catch(e){}};
@@ -1041,9 +1043,35 @@ function saveHist(){ const text=$('tin').value; if(!text.trim()) return; let h=g
   const title=$('tTitle').value.trim()||(old&&old.title)||autoTitle(text);
   h=h.filter(x=>x.text!==text); h.unshift({id:old?old.id:Date.now(),title,text,tr:state.tr,t:Date.now()}); setHist(h); }
 function histTr(){ const h=getHist(), e=h.find(x=>x.text===$('tin').value); if(e&&e.tr!==state.tr){ e.tr=state.tr; setHist(h);} }
+// ---- move songs between browsers / sites: Export writes a JSON backup, Import merges one in ----
+const BACKUP_APP='piano-chord-sheet';
+function histMsg(t){ const m=$('histMsg'); if(m){ m.textContent=t; m.hidden=!t; } }
+function exportSongs(){
+  const data=JSON.stringify({app:BACKUP_APP,version:1,exported:new Date().toISOString(),songs:getHist()},null,1), n=getHist().length;
+  try{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type:'application/json'})); a.download='piano-chord-songs.json'; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000); }catch(e){}
+  const fallback=()=>{ const t=$('tin'); t.value=data; t.focus(); t.select(); $('tTitle').value=''; $('tTitle').dataset.auto='0';
+    histMsg(`Exported ${n} songs. If no file downloaded, copy everything in the box above, then paste it into the Songs box on the other site and press Render.`); };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(data).then(()=>histMsg(`Exported ${n} songs to piano-chord-songs.json, and copied to your clipboard. On the other site: Songs → Import, or paste into the box and press Render.`),fallback);
+  else fallback();
+}
+// returns true when the text was a backup (and was imported)
+function importSongs(text){
+  let d; try{ d=JSON.parse(text); }catch(e){ return false; }
+  if(!d||d.app!==BACKUP_APP||!Array.isArray(d.songs)) return false;
+  const h=getHist(), have=new Set(h.map(x=>x.text)); let added=0;
+  for(const x of d.songs){ if(!x||typeof x.text!=='string'||!x.text.trim()||have.has(x.text)) continue;
+    h.push({id:x.id||Date.now()+added,title:String(x.title||autoTitle(x.text)).slice(0,80),text:x.text,tr:(typeof x.tr==='number'?x.tr:null),t:x.t||Date.now()}); have.add(x.text); added++; }
+  h.sort((a,b)=>(b.t||0)-(a.t||0)); setHist(h);
+  if($('tin').value===text){ $('tin').value=''; }
+  renderHist(); histMsg(`Imported ${added} song${added===1?'':'s'}${d.songs.length-added?` (${d.songs.length-added} already here)`:''}. Tap one to open it.`);
+  return true;
+}
 function renderHist(){ const h=getHist(), cur=$('tin').value;
-  $('hist').innerHTML=h.length?'<div class="hh">Recent songs</div>'+h.map(x=>`<div class="hi${x.text===cur?' cur':''}"><button class="hl" data-id="${x.id}" title="${esc(x.title)}"><span>${esc(x.title)}</span></button><span class="mut">${new Date(x.t).toLocaleDateString()}</span><button class="hx sm2" data-e="${x.id}" aria-label="Rename ${esc(x.title)}" title="Rename"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button><button class="hx sm2" data-x="${x.id}" aria-label="Remove ${esc(x.title)}" title="Remove from history">&times;</button></div>`).join(''):''; }
-$('hist').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; const h=getHist();
+  $('hist').innerHTML='<div class="hh"><span>Recent songs</span><span class="grow"></span><button class="sm2" id="expBtn" title="Save all songs to a file you can import on another browser or site">Export</button><button class="sm2" id="impBtn" title="Load songs from an exported file">Import</button></div><div id="histMsg" class="mut" hidden></div>'+h.map(x=>`<div class="hi${x.text===cur?' cur':''}"><button class="hl" data-id="${x.id}" title="${esc(x.title)}"><span>${esc(x.title)}</span></button><span class="mut">${new Date(x.t).toLocaleDateString()}</span><button class="hx sm2" data-e="${x.id}" aria-label="Rename ${esc(x.title)}" title="Rename"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button><button class="hx sm2" data-x="${x.id}" aria-label="Remove ${esc(x.title)}" title="Remove from history">&times;</button></div>`).join(''); }
+$('hist').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return;
+  if(b.id==='expBtn'){ exportSongs(); return; }
+  if(b.id==='impBtn'){ $('impFile').click(); return; }
+  const h=getHist();
   if(b.dataset.e){ // rename in place: Enter or leaving the box saves, Esc cancels
     const row=b.closest('.hi'), lab=row.querySelector('.hl'), it=h.find(x=>String(x.id)===b.dataset.e); if(!it) return;
     const inp=document.createElement('input'); inp.className='hren'; inp.value=it.title; inp.setAttribute('aria-label','Song name');
@@ -1057,6 +1085,8 @@ $('hist').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!
   const it=h.find(x=>String(x.id)===b.dataset.id); if(!it) return;
   $('tin').value=it.text; $('tTitle').value=it.title; $('tTitle').dataset.auto='1';
   state.tr=(it.tr==null?null:it.tr); render(); saveHist(); try{$('pastePop').hidePopover();}catch(_){} requestAnimationFrame(autoSizeCards); });
+$('impFile').addEventListener('change',async()=>{ const f=$('impFile').files[0]; if(!f) return; const txt=await f.text(); $('impFile').value='';
+  if(!importSongs(txt)) histMsg("That file isn't a song export from this app."); });
 $('tTitle').addEventListener('input',()=>{ $('tTitle').dataset.auto='0'; });
 $('tTitle').addEventListener('change',()=>{ const v=$('tTitle').value.trim(); if(!v) return; const h=getHist(), it=h.find(x=>x.text===$('tin').value); if(it&&it.title!==v){ it.title=v.slice(0,80); setHist(h); renderHist(); } });
 $('tin').addEventListener('input',()=>{ if($('tTitle').dataset.auto==='1'){ $('tTitle').value=''; $('tTitle').dataset.auto='0'; } });
