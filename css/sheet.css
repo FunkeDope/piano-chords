@@ -1,0 +1,35 @@
+/* Song sheet: chords, lyrics, tab notes, key bar */
+.meta{contain:inline-size;color:var(--mut);font-size:13px}
+.sheet{margin:0;font:var(--text)/1.75 ui-monospace,"SF Mono",Menlo,Consolas,"Roboto Mono","Droid Sans Mono","Liberation Mono",monospace;white-space:pre}
+.ly{color:oklch(var(--L) var(--C) var(--h))}
+#kbSel{font:inherit;font-size:13px;height:30px;padding:0 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);max-width:100%}
+body.plain .ly{color:inherit;background:none}
+.ch.ext,.ly.ext{background:oklch(.7 .14 var(--h) / .22)}
+.ch.ext{border-radius:3px}
+.trbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--mut);contain:inline-size}
+.trbar b{min-width:2.2em;text-align:center;color:var(--fg);font-size:15px}
+.tab{color:var(--mut)}
+.notes{font-weight:400;font-size:.88em;display:block;white-space:normal;line-height:2}
+.nt.ntc{font-weight:700}
+.walk{color:var(--mut);font-weight:400;background:var(--card);border-radius:4px;box-shadow:0 0 0 2px var(--card);text-decoration:none}
+.walkkey{color:var(--mut);font-size:13px;border-left:3px solid var(--line);padding:2px 8px;contain:inline-size}
+.ntx{color:var(--mut);font-size:.85em;margin:0 .5em 0 -.1em}
+.notes .riff{color:var(--mut);margin-right:.5em}
+.nt{display:inline-block;border:1.5px solid oklch(var(--L) var(--C) var(--h));border-radius:999px;padding:0 .5em;line-height:1.5;margin:0 .25em .3em 0;color:var(--fg);background:oklch(var(--L) var(--C) var(--h) / .12)}
+.nt sub{font-size:.68em;vertical-align:baseline;position:relative;top:.2em;opacity:.7;margin-left:.05em}
+.nc{color:var(--mut);font-style:italic}
+.sheet{position:relative}
+.ball{position:absolute;left:0;top:0;width:12px;height:12px;border-radius:50%;background:oklch(var(--L) var(--C) var(--h,0));box-shadow:0 0 0 2px var(--bg),0 0 10px oklch(.75 .16 var(--h,0));pointer-events:none;z-index:3}
+.ball[hidden]{display:none}
+#sheet .ly.sing{background:oklch(.7 .15 var(--h) / .3);border-radius:3px;color:var(--fg)}
+#sheet .ch.cur{outline:3px solid oklch(var(--L) var(--C) var(--h));outline-offset:3px;border-radius:3px}
+body.practicing #sheet .ch,body.practicing #sheet .ly{cursor:pointer}
+.sec{color:var(--mut)}
+.ch{--c:oklch(var(--L) var(--C) var(--h));}
+.ch{color:var(--c);font-weight:800;cursor:pointer;text-decoration:underline 2px;text-underline-offset:3px}
+.ch.on{background:var(--c);color:var(--bg);text-decoration:none}
+.ly.on{outline:2px solid oklch(var(--L) var(--C) var(--h));outline-offset:1px;border-radius:2px}
+body.from-card #sheet .ch:not(.on),body.from-card #sheet .ly:not(.on),body.from-card #sheet .tab,body.from-card #sheet .notes{opacity:.25}
+body.from-card #sheet .ly.on{outline:none;background:oklch(.7 .15 var(--h) / .35);color:var(--fg);border-radius:3px}
+body.from-card #sheet .ch.on{box-shadow:0 0 0 3px oklch(var(--L) var(--C) var(--h))}
+#sheet .ch,#sheet .ly{transition:opacity .12s}

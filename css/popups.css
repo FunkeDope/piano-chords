@@ -1,0 +1,23 @@
+/* Popovers: song list (paste / history) and settings */
+[popover]{border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--fg);padding:14px;margin:0;max-width:calc(100vw - 24px)}
+[popover]::backdrop{background:transparent}
+#pastePop textarea{display:block;width:min(560px,calc(100vw - 56px));height:260px;padding:8px;font:13px ui-monospace,"SF Mono",Menlo,Consolas,"Roboto Mono","Droid Sans Mono","Liberation Mono",monospace;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+#pastePop .row input{flex:1;min-width:0;font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+#hist{max-height:220px;overflow:auto;margin-top:12px;width:min(560px,calc(100vw - 56px))}
+#hist:empty{display:none}
+#hist .hh{font-size:12px;color:var(--mut);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+#histMsg{font-size:12px;margin:2px 0 6px}
+#hist .hi{display:flex;align-items:center;gap:8px;padding:2px 0}
+#hist .hl{flex:1;min-width:0;justify-content:flex-start;height:30px;font-size:14px}
+#hist .hl span{overflow:hidden;text-overflow:ellipsis}
+#hist .hi.cur .hl{border-color:var(--fg);font-weight:600}
+#hist .hi .mut{font-size:12px}
+#hist .hx{width:28px;padding:0}
+#hist .hren{flex:1;min-width:0;height:30px;font:inherit;font-size:14px;padding:0 10px;border:2px solid var(--fg);border-radius:8px;background:var(--bg);color:var(--fg)}
+#setPop label{display:flex;gap:10px;align-items:center;margin-bottom:8px;white-space:nowrap}
+#setPop output{color:var(--mut);min-width:3.5em}
+#setPop input[type=checkbox]{margin:0}
+.wl{font-size:13px;margin-bottom:10px;color:var(--mut)}.wl.bad{color:oklch(.7 .16 40)}
+.huekey{display:flex;gap:3px;margin:6px 0 2px}
+.huekey span{flex:1;text-align:center;font:600 12px system-ui;padding:3px 0;border-radius:4px;color:#111}
+.key{margin:6px 0 0;padding-left:18px;color:var(--mut);font-size:13px;line-height:1.7}

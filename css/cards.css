@@ -1,0 +1,18 @@
+/* Chord cards: keyboard diagrams, inversion badge, tap-to-peek */
+.card{--c:oklch(var(--L) var(--C) var(--h));width:var(--fit,var(--cw));flex:none;padding:4px 6px 6px;border:3px solid var(--c);border-radius:8px}
+.card.ext{background:oklch(.7 .14 var(--h) / .22)}
+.card{transition:opacity .12s,transform .12s,box-shadow .12s}
+.cards:has(.card.on) .card:not(.on){opacity:.25}
+.card.on{transform:scale(1.04);box-shadow:0 0 0 4px var(--c),0 0 24px 4px oklch(.7 .16 var(--h) / .7);background:oklch(.7 .14 var(--h) / .28);z-index:1;position:relative}
+/* hovering a card lights up every place that chord is played and dims the rest */
+.card{cursor:default;position:relative}
+.inv-ic{position:absolute;top:4px;right:4px;width:30px;height:30px;padding:0;border-radius:50%;border:2px solid var(--c,oklch(var(--L) var(--C) var(--h)));background:var(--bg);color:var(--c,oklch(var(--L) var(--C) var(--h)));display:flex;align-items:center;justify-content:center;cursor:help;z-index:2}
+.inv-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.inv-ic.in{position:static;width:28px;height:28px;--c:oklch(var(--L) var(--C) var(--h))}
+.inv-ic[hidden]{display:none}
+#peek{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));width:min(92vw,380px);z-index:7;padding:6px;border-radius:14px;background:var(--card);box-shadow:0 8px 28px rgb(0 0 0 / .45)}
+#peek[hidden]{display:none}
+#peek .card{width:100%;transform:none;box-shadow:none}
+.card svg{display:block;width:100%;height:auto}
+.card .ttl{fill:var(--c)}
+.card .n{fill:var(--fg)}

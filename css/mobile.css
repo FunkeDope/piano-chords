@@ -1,0 +1,58 @@
+/* Phones and narrow windows */
+@media (max-width:760px){
+  body{overflow-x:hidden}
+  #fab{display:flex;position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));width:56px;height:56px;padding:0;border-radius:50%;z-index:6;background:var(--fg);color:var(--bg);border:0;box-shadow:0 4px 16px rgb(0 0 0 / .35)}
+  #fab svg{width:26px;height:26px;fill:currentColor}
+  body.practicing #fab{display:none}
+  #ctlPop{width:calc(100vw - 16px);max-width:none;display:none;flex-direction:column;gap:12px}
+  #ctlPop:popover-open{display:flex}
+  #ctlPop .bar{position:static;flex-wrap:wrap!important;padding:0;background:none}
+  #ctlPop .bar .grow{display:none}
+  #ctlPop .bar input[type=range]{flex:1 1 140px}
+  #ctlPop .bar > button:not(#play){flex:1 1 auto}
+  button{height:44px;font-size:16px;border-radius:10px}
+  .icon{width:44px}
+  .icon svg,.ic{width:20px;height:20px}
+  .icon.sm{width:44px;height:44px;font-size:22px}
+  .sm2{height:44px;padding:0 14px;font-size:16px}
+  .bar .lbl{display:inline!important}
+  .bar{gap:8px}
+  .trbar{gap:10px;font-size:15px}
+  .trbar b{font-size:18px}
+  #kbSel{height:44px;font-size:16px;flex:1 1 100%}
+  #modeSeg{flex:1 1 60%}#modeSeg button{flex:1;height:44px;font-size:16px}
+  #fillBtn{flex:0 0 auto}
+  /* song sheet: full-width panel, big controls */
+  #pastePop{width:calc(100vw - 16px);max-width:none;padding:12px}
+  #pastePop textarea{width:100%;height:28vh;font-size:14px}
+  #pastePop .row input{height:44px;font-size:16px}
+  #hist{width:100%;max-height:none}
+  #hist .hl{height:48px;font-size:16px}
+  #hist .hx{width:44px;height:44px;font-size:20px}
+  #hist .hren{height:48px;font-size:16px}
+  /* settings */
+  #setPop{width:calc(100vw - 16px);max-width:none}
+  #setPop label{font-size:16px;min-height:44px;margin-bottom:4px}
+  #setPop input[type=range]{flex:1;height:32px}
+  #setPop input[type=checkbox]{width:24px;height:24px}
+  .prow input[type=number]{width:64px;height:40px;font-size:16px}
+  .seg button{height:40px;font-size:15px;padding:0 14px}
+  .bar{flex-wrap:nowrap!important}
+  #spd,#spu{display:none}
+  .bar button{padding:0 10px}
+  .bar input[type=range]{min-width:40px}
+  .app{flex-direction:column;align-items:stretch;padding:8px 10px;gap:10px}
+  .panel{order:-1;position:static;height:auto;min-width:0}
+  .cards{flex-direction:row;flex:none}
+  .left{width:100%;min-width:0}
+  .sheet{overflow-x:auto}
+  .bar{flex-wrap:wrap;gap:6px}
+  .bar input[type=range]{width:auto;flex:1 1 80px;min-width:60px}
+  .bar .grow{display:none}
+  .trbar #trNote{flex-basis:100%}
+  body.practicing .panel{display:none}
+  .dock{left:0!important;right:0;width:auto!important;bottom:0;border-radius:14px 14px 0 0;padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+  .pchord{font-size:22px}.pchord.sm{font-size:16px}
+  .pmove{font-size:14px;flex-basis:100%;order:5}
+  .dock .hint{display:none}
+}

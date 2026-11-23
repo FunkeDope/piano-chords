@@ -1,0 +1,33 @@
+/* Practice dock: draggable panel with the big keyboard and finger moves */
+.dock{position:fixed;bottom:12px;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:0 6px 24px rgb(0 0 0 / .25)}
+.dock[hidden]{display:none}
+.grip{height:14px;margin:-6px -4px 4px;display:flex;justify-content:center;align-items:center;cursor:grab;touch-action:none}
+.grip span{width:44px;height:5px;border-radius:3px;background:var(--line)}
+.dock .phead{cursor:grab;touch-action:none}
+.dock.floating{left:var(--fx)!important;top:var(--fy)!important;bottom:auto!important;right:auto!important;width:var(--fw)!important;border-radius:12px!important}
+.dock.dragging{cursor:grabbing;opacity:.92;user-select:none}
+.beats{display:flex;gap:5px}.beats span{width:9px;height:9px;border-radius:50%;background:var(--line)}.beats span.on{background:var(--fg)}
+body.practicing #spd,body.practicing #spu,body.practicing #spo,body.practicing #sp{display:none}
+.prow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px}
+.prow label{display:flex;align-items:center;gap:5px;color:var(--mut)}
+.prow input[type=number]{width:50px;font:inherit;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+.pchord{font-size:26px;font-weight:800;color:oklch(var(--L) var(--C) var(--h,0))}
+.pchord.sm{font-size:18px}
+.pmove{font-size:15px;color:var(--fg)}
+#pKb{display:block;margin:6px auto;width:100%;max-height:min(140px,21vh)}
+#pKb .pk{fill:#F1EFE8;stroke:#888780;stroke-width:.5;transition:fill .2s}
+#pKb .pk.blk{fill:#2C2C2A}
+#pKb .pk.on{fill:oklch(.84 .14 var(--h))}
+#pKb .pk.blk.on{fill:oklch(.6 .15 var(--h))}
+#pKb .pk.lh{fill:oklch(.5 .14 var(--h))}
+#pKb .pk.next{stroke:oklch(.7 .16 var(--hn));stroke-width:3;stroke-dasharray:5 3}
+#pKb .aw{fill:none;stroke:oklch(.6 .19 var(--hn));stroke-width:2.4;stroke-linecap:round}
+#pKb .aw-u{fill:none;stroke:#fff;stroke-width:4.6;stroke-linecap:round;opacity:.85}
+#pKb .awh{fill:oklch(.6 .19 var(--hn));stroke:#fff;stroke-width:1.2;stroke-linejoin:round}
+#pKb .fd.keep circle{stroke:oklch(.85 .16 85);stroke-width:3.5}
+#pKb .fd circle{fill:oklch(.3 .08 var(--h));stroke:#fff;stroke-width:1.5}
+#pKb .fd.lhd circle{fill:#fff;stroke:oklch(.4 .1 var(--h))}
+#pKb .fd text{fill:#fff;font:700 12px system-ui}
+#pKb .fd.lhd text{fill:oklch(.3 .08 var(--h))}
+@media (pointer:coarse){#pPrev,#pNextBtn{width:64px;height:44px}}
+#pBtn.on{background:var(--fg);color:var(--bg)}
