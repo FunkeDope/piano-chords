@@ -590,8 +590,8 @@ function render(){
   // header: everything above the first section / chord / tab line
   let first=all.findIndex(l=>isSection(l)||isChordLine(l)||isTabLine(l)); if(first<0) first=0;
   // header: keep only the useful facts (Tuning / Capo / Key); drop page junk, links, divider lines and instructions
-  const htxt=all.slice(0,first).join(' ').replace(/\]\([^)]*\)/g,']').replace(/[\[\]]/g,'');
-  const header=[...htxt.matchAll(/\b(Tuning|Capo|Key)\s*:\s*(.*?)(?=\b(?:Tuning|Capo|Key)\s*:|$)/gi)].map(m=>`${m[1][0].toUpperCase()+m[1].slice(1).toLowerCase()}: ${m[2].replace(/[-–—_=*]{3,}.*$/,'').replace(/https?:\S+/g,'').trim()}`).filter(x=>!/:\s*$/.test(x)).join(' · ');
+  const htxt=all.slice(0,first).join('\n').replace(/\]\([^)]*\)/g,']').replace(/[\[\]]/g,'');
+  const header=[...htxt.replace(/ ?\n ?/g,'\n').matchAll(/\b(Tuning|Capo|Key)\s*:\s*([^\n]*?)(?=\b(?:Tuning|Capo|Key)\s*:|\n|$)/gi)].map(m=>`${m[1][0].toUpperCase()+m[1].slice(1).toLowerCase()}: ${m[2].replace(/[-–—_=*]{3,}.*$/,'').replace(/https?:\S+/g,'').trim()}`).filter(x=>!/:\s*$/.test(x)).join(' · ');
   const lines=all.slice(first);
   $('metaText').textContent=header;
   $('trVal').textContent=(T>0?'+':'')+T;
@@ -1104,7 +1104,10 @@ $('trDn').addEventListener('click',()=>{state.tr=norm(state.tr-1);render();});
 $('trUp').addEventListener('click',()=>{state.tr=norm(state.tr+1);render();});
 $('trReset').addEventListener('click',()=>{state.tr=state.auto;render();});
 let saved=null;try{saved=localStorage.getItem('tab');}catch(e){}
-if(saved){$('tin').value=saved; try{const t=localStorage.getItem('tr');if(t!==null&&t!=='null')state.tr=+t;}catch(e){} render(); if(!getHist().length) saveHist();} else $('pastePop').showPopover();
+// first visit: open with a free, public-domain example so there's something to look at
+const EXAMPLE="Moonlight Sonata, 1st movement (Piano Sonata No. 14, Op. 27 No. 2)\nLudwig van Beethoven, 1801 - public domain\nKey: C#m\n\n[How to play]\nEach line is one bar.\nChords on the same line share the bar evenly.\nRight hand: roll each chord as slow triplets\n(low, middle, high).\nLeft hand: hold the bass note\n(as an octave if you can reach it).\n\n[Intro]\nC#m\nbar 1\nC#m/B\nbar 2\nA     D/F#\nbar 3\nG#7   C#m/G#   G#sus4   G#7\nbar 4\n\n[Melody enters]\nC#m\nbar 5\nG#7\nbar 6\nC#m   F#m\nbar 7\nE     B7\nbar 8\nE\nbar 9\n";
+if(saved){$('tin').value=saved; try{const t=localStorage.getItem('tr');if(t!==null&&t!=='null')state.tr=+t;}catch(e){} render(); if(!getHist().length) saveHist();}
+else { $('tin').value=EXAMPLE; $('tTitle').value='Moonlight Sonata (Beethoven) - example'; render(); saveHist(); $('tTitle').value=''; requestAnimationFrame(autoSizeCards); }
 </script>
 </body>
 </html>

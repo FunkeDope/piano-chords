@@ -1,0 +1,33 @@
+Moonlight Sonata, 1st movement (Piano Sonata No. 14, Op. 27 No. 2)
+Ludwig van Beethoven, 1801 - public domain
+Key: C#m
+
+[How to play]
+Each line is one bar.
+Chords on the same line share the bar evenly.
+Right hand: roll each chord as slow triplets
+(low, middle, high).
+Left hand: hold the bass note
+(as an octave if you can reach it).
+
+[Intro]
+C#m
+bar 1
+C#m/B
+bar 2
+A     D/F#
+bar 3
+G#7   C#m/G#   G#sus4   G#7
+bar 4
+
+[Melody enters]
+C#m
+bar 5
+G#7
+bar 6
+C#m   F#m
+bar 7
+E     B7
+bar 8
+E
+bar 9
