@@ -25,6 +25,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      # Pages lets browsers cache files for 10 minutes. Adding ?v=<commit> to every CSS/JS link and
+      # module import means a reload always picks up the new version (local copies stay unstamped).
+      - name: Stamp file links with this commit
+        run: |
+          V="${GITHUB_SHA::8}"
+          sed -i -E "s#(href|src)=\"((css|js)/[^\"?]+)\"#\1=\"\2?v=$V\"#g" index.html
+          sed -i -E "s#from '(\./[^'?]+\.js)'#from '\1?v=$V'#g" js/*.js
+          grep -c "?v=$V" index.html js/*.js
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .
