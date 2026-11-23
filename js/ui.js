@@ -17,39 +17,74 @@ function peek(c) {
   const card = document.querySelector(`#cards .card[data-c="${CSS.escape(c)}"]`); if (!card) { box.hidden = true; return; }
   const r = card.getBoundingClientRect(), seen = card.offsetParent && r.top >= 0 && r.bottom <= innerHeight;
   if (seen) { box.hidden = true; return; }
-  box.innerHTML = '<div class="grip" aria-hidden="true"><span></span></div>' + card.outerHTML; box.querySelector('.card').classList.remove('on'); box.hidden = false;
+  box.innerHTML = '<div class="grip" aria-hidden="true"><span></span></div>' + card.outerHTML + '<div class="rsz" title="Drag to resize" aria-hidden="true"></div>'; box.querySelector('.card').classList.remove('on'); box.hidden = false;
   placePeek();
 }
 
-// ---- the peek card can be dragged anywhere; its spot is remembered ----
+// ---- the peek card: drag to move it, pinch (or drag its corner) to resize it; both are remembered ----
 let peekPos = store.getJSON('peekPos', null);   // {x, y} of the top-left corner, or null = default spot
+let peekW = store.getJSON('peekW', null);       // width in px, or null = default width
+const PEEK_MIN = 180;
+// apply the saved width (kept on screen) and return it
+function applyPeekW() {
+  const box = $('peek'); if (!peekW) return box.offsetWidth;
+  peekW = Math.max(PEEK_MIN, Math.min(peekW, innerWidth - 8)); box.style.width = peekW + 'px'; return peekW;
+}
 function placePeek() {
-  const box = $('peek'); if (!peekPos || box.hidden) return;
+  const box = $('peek'); if (box.hidden) return;
+  applyPeekW(); if (!peekPos) return;
   const w = box.offsetWidth, h = box.offsetHeight;
   peekPos.x = Math.max(4, Math.min(peekPos.x, innerWidth - w - 4)); peekPos.y = Math.max(4, Math.min(peekPos.y, innerHeight - h - 4));
   box.classList.add('moved'); box.style.left = peekPos.x + 'px'; box.style.top = peekPos.y + 'px';
 }
-function initPeekDrag() {
-  const box = $('peek'); let dragged = false;
+function initPeekGestures() {
+  const box = $('peek'), pts = new Map();   // pointerId -> {x, y} for every finger on the card
+  let mode = null, moved = false, start = null;
+  const rect = () => { const r = box.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  const pair = () => { const [a, b] = [...pts.values()]; return { d: Math.hypot(a.x - b.x, a.y - b.y), cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2 }; };
+  // (re)start a gesture from the fingers that are down now
+  const begin = onHandle => {
+    start = { box: rect(), p: { ...[...pts.values()][0] } };
+    if (pts.size >= 2) { mode = 'pinch'; start.pair = pair(); } else mode = onHandle ? 'resize' : 'drag';
+  };
   box.addEventListener('pointerdown', e => {
     if (e.target.closest('button')) return;
-    const r = box.getBoundingClientRect(), ox = e.clientX - r.left, oy = e.clientY - r.top, sx = e.clientX, sy = e.clientY;
-    dragged = false; box.setPointerCapture(e.pointerId);
-    const move = ev => {
-      if (!dragged && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 6) return;   // small wobble = still a tap (tap closes it)
-      dragged = true; box.classList.add('dragging');
-      peekPos = { x: ev.clientX - ox, y: ev.clientY - oy }; placePeek();
-    };
-    const up = () => {
-      box.removeEventListener('pointermove', move); box.removeEventListener('pointerup', up); box.removeEventListener('pointercancel', up);
-      box.classList.remove('dragging'); if (dragged) store.setJSON('peekPos', peekPos);
-    };
-    box.addEventListener('pointermove', move); box.addEventListener('pointerup', up); box.addEventListener('pointercancel', up);
+    box.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.size === 1) moved = false;
+    begin(!!e.target.closest('.rsz'));
   });
-  // a drag ends with a click: swallow it so the card stays open
-  box.addEventListener('click', e => { if (dragged) { e.stopPropagation(); dragged = false; } });
-  // double-tap the grip to put it back in its default spot
-  box.addEventListener('dblclick', e => { if (!e.target.closest('.grip')) return; peekPos = null; store.remove('peekPos'); box.classList.remove('moved'); box.style.left = box.style.top = ''; });
+  box.addEventListener('pointermove', e => {
+    if (!pts.has(e.pointerId)) return; pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const s = start.box;
+    if (mode === 'pinch') {
+      const t = pair(), s2 = start.pair;
+      if (!moved && Math.abs(t.d - s2.d) < 6 && Math.hypot(t.cx - s2.cx, t.cy - s2.cy) < 6) return;
+      peekW = s.w * t.d / s2.d; const w = applyPeekW(), h = box.offsetHeight;
+      // keep the spot between your fingers under your fingers
+      peekPos = { x: t.cx - (s2.cx - s.x) / s.w * w, y: t.cy - (s2.cy - s.y) / s.h * h };
+    } else {
+      const p = pts.get(e.pointerId), dx = p.x - start.p.x, dy = p.y - start.p.y;
+      if (!moved && Math.hypot(dx, dy) < 6) return;   // small wobble = still a tap (tap closes it)
+      if (mode === 'resize') { peekW = s.w + dx; peekPos = { x: s.x, y: s.y }; }
+      else peekPos = { x: s.x + dx, y: s.y + dy };
+    }
+    moved = true; box.classList.add('dragging'); placePeek();
+  });
+  const end = e => {
+    if (!pts.delete(e.pointerId)) return;
+    if (pts.size) { begin(false); return; }   // one finger still down after a pinch: keep dragging with it
+    box.classList.remove('dragging');
+    if (moved) { store.setJSON('peekPos', peekPos); if (peekW) store.setJSON('peekW', Math.round(peekW)); }
+  };
+  box.addEventListener('pointerup', end); box.addEventListener('pointercancel', end);
+  // a drag or pinch ends with a click: swallow it so the card stays open
+  box.addEventListener('click', e => { if (moved) { e.stopPropagation(); moved = false; } });
+  // double-tap the grip to put it back: default spot and size
+  box.addEventListener('dblclick', e => {
+    if (!e.target.closest('.grip')) return;
+    peekPos = peekW = null; store.remove('peekPos'); store.remove('peekW');
+    box.classList.remove('moved'); box.style.left = box.style.top = box.style.width = '';
+  });
   addEventListener('resize', placePeek);
 }
 function initChordLinks() {
@@ -113,7 +148,7 @@ function initMobileControls() {
 
 export function initUI() {
   initChordLinks();
-  initPeekDrag();
+  initPeekGestures();
   initPopovers();
   initTooltip();
   initMobileControls();
