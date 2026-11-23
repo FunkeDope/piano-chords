@@ -8,7 +8,10 @@ const MAX_SONGS = 50;
 
 // ---- storage ----
 export const getHist = () => { const h = store.getJSON('history', []); return Array.isArray(h) ? h : []; };
-const setHist = h => store.setJSON('history', h.slice(0, MAX_SONGS));
+let onChange = () => {};   // set by initSongs: called whenever the saved songs change
+const setHist = h => { store.setJSON('history', h.slice(0, MAX_SONGS)); onChange(); };
+// the saved name of the song in the paste box ('' if it isn't saved yet)
+export const currentTitle = () => (getHist().find(x => x.text === $('tin').value) || {}).title || '';
 
 // ---- titles: first line that looks like a song name (skips Ultimate Guitar page junk) ----
 const UG_JUNK = /^(transpose|listen|pdf|print|from the album|youtube|spotify|https?:|tuning|capo|key|tempo|artist|difficulty|author|strumming|chords?\b)/i;
@@ -74,7 +77,8 @@ function renderHist() {
     + `<span class="mut">${new Date(x.t).toLocaleDateString()}</span>`
     + `<button class="hx sm2" data-e="${x.id}" aria-label="Rename ${esc(x.title)}" title="Rename">${EDIT_ICON}</button>`
     + `<button class="hx sm2" data-x="${x.id}" aria-label="Remove ${esc(x.title)}" title="Remove from history">&times;</button></div>`;
-  $('hist').innerHTML = '<div class="hh"><span>Recent songs</span><span class="grow"></span>'
+  const n = getHist().length;
+  $('hist').innerHTML = `<div class="hh"><span>Your songs${n ? ` · ${n}` : ''}</span><span class="grow"></span>`
     + '<button class="sm2" id="expBtn" title="Save all songs to a file you can import on another browser or site">Export</button>'
     + '<button class="sm2" id="impBtn" title="Load songs from an exported file">Import</button></div>'
     + '<div id="histMsg" class="mut" hidden></div>' + getHist().map(row).join('');
@@ -97,7 +101,8 @@ function startRename(b) {
 }
 
 // onOpen(tr): render the song now in the paste box (tr = saved transpose, or null for auto)
-export function initSongs({ onOpen }) {
+export function initSongs({ onOpen, onChange: changed }) {
+  if (changed) onChange = changed;
   fixOldTitles();
   const tin = $('tin'), title = $('tTitle');
 

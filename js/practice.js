@@ -53,7 +53,7 @@ const kx = k => BLK.has(mod12(k)) ? (wxx(k) + 1) * KW2 : wxx(k) * KW2 + KW2 / 2;
 const row = k => BLK.has(mod12(k)) ? 56 : 104;
 const nextIdx = () => (i + 1) % seq.length;
 const chordSpan = idx => document.querySelector(`#sheet .ch[data-k="${seq[idx].k}"]`);
-const barBottom = () => document.querySelector('.bar').getBoundingClientRect().bottom;
+const barBottom = () => Math.max(0, document.querySelector('.topbar').getBoundingClientRect().bottom);   // top of the free space under the sticky top bar
 
 // new song (or new voicings): seq = [{name, k}] in play order, vox = voiceSong() output
 export function load(s, vox) {
@@ -200,7 +200,7 @@ export function sizeDock() {
   const d = $('dock'); if (d.hidden) return;
   if (d.classList.contains('floating')) { placeFloat(); document.body.style.paddingBottom = '24px'; return; }
   const l = document.querySelector('.left').getBoundingClientRect();
-  if (!isMobile()) { d.style.left = Math.max(8, l.left) + 'px'; d.style.width = Math.min(Math.max(l.width, 520), innerWidth - 16) + 'px'; }
+  if (!isMobile()) { d.style.left = Math.max(8, l.left) + 'px'; d.style.width = Math.min(Math.max(l.width, 640), innerWidth - 16) + 'px'; }
   document.body.style.paddingBottom = (d.offsetHeight + 24) + 'px';
 }
 function placeFloat() {

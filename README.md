@@ -8,12 +8,12 @@ Plain HTML, CSS and JavaScript modules: no build step, no dependencies. GitHub P
 ```
 index.html            page markup (toolbar, sheet, cards panel, practice dock, popovers)
 css/
-  base.css            colour tokens, buttons, toolbar
-  layout.css          sheet column + cards panel
+  base.css            colour tokens, buttons, form controls
+  layout.css          top bar, sheet column + cards panel
   sheet.css           chords, lyrics, tab notes, key bar
   cards.css           chord diagrams
   practice.css        practice dock
-  popups.css          Songs and Settings popovers
+  popups.css          Songs, Settings and phone Controls popovers
   mobile.css          phone layout (keep last)
 js/
   main.js             entry point: wires everything up, loads the last song

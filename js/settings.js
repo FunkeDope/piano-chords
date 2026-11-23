@@ -12,14 +12,19 @@ function bindSlider(id, out, prop, unit) {
 
 // keep the screen awake while the sheet is open (re-acquired whenever the tab comes back into view)
 let wakeLock = null;
-function wlShow(on, msg) { const e = $('wlStat'); if (!e) return; e.textContent = on ? 'Screen stays awake: on' : 'Screen stays awake: off. ' + msg; e.classList.toggle('bad', !on); }
+// on: true / false; msg: plain-language status; detail: the browser's own reason (shown on hover)
+function wlShow(on, msg, detail = '') {
+  const box = $('wlStat'); if (!box) return;
+  $('wlText').textContent = on ? 'On. Your screen won\'t dim while this page is open.' : msg;
+  box.title = detail; box.classList.toggle('on', on); box.classList.toggle('bad', !on);
+}
 async function keepAwake() {
-  if (!('wakeLock' in navigator)) { wlShow(false, `Chrome doesn't offer it on this page (secure context: ${window.isSecureContext}).`); return; }
+  if (!('wakeLock' in navigator)) { wlShow(false, 'Not available in this browser, so the screen may dim while you play.', `secure context: ${window.isSecureContext}`); return; }
   if (document.visibilityState !== 'visible' || wakeLock) return;
   try {
     wakeLock = await navigator.wakeLock.request('screen'); wlShow(true);
-    wakeLock.addEventListener('release', () => { wakeLock = null; wlShow(false, 'Released when the page was hidden; tap the page to turn it back on.'); });
-  } catch (e) { wakeLock = null; wlShow(false, `Chrome said: ${e.name}: ${e.message}`); }
+    wakeLock.addEventListener('release', () => { wakeLock = null; wlShow(false, 'Paused while the page was hidden. Tap anywhere to turn it back on.'); });
+  } catch (e) { wakeLock = null; wlShow(false, 'Off for now. Tap anywhere on the page to turn it on.', `${e.name}: ${e.message}`); }
 }
 
 export function initSettings() {

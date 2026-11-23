@@ -5,7 +5,7 @@ import { state, render, fitText, syncVoicingUI } from './render.js';
 import { fitCards, autoSizeCards } from './cards.js';
 import * as Practice from './practice.js';
 import * as AutoScroll from './autoscroll.js';
-import { initSongs, getHist, saveHist, rememberTr } from './songs.js';
+import { initSongs, getHist, saveHist, rememberTr, currentTitle } from './songs.js';
 import { initSettings } from './settings.js';
 import { initUI } from './ui.js';
 import { $, store } from './util.js';
@@ -13,8 +13,11 @@ import { $, store } from './util.js';
 const EXAMPLE_URL = 'examples/moonlight-sonata.txt';
 const EXAMPLE_TITLE = 'Moonlight Sonata (Beethoven) - example';
 
+// the open song's name in the top bar and the browser tab
+function showTitle() { const t = currentTitle(); $('songTitle').textContent = t; document.title = t ? `${t} · Piano Chord Sheet` : 'Piano Chord Sheet'; }
+
 // re-render the current song and remember its transpose setting
-function refresh() { render(); rememberTr(state.tr); }
+function refresh() { render(); rememberTr(state.tr); showTitle(); }
 
 // show the song now in the paste box (tr = transpose, null = auto from capo/tuning) and save it to the history
 function openSong(tr) {
@@ -66,7 +69,7 @@ function start() {
   AutoScroll.initAutoScroll();
   initUI();
   Practice.initPractice();
-  initSongs({ onOpen: openSong });
+  initSongs({ onOpen: openSong, onChange: showTitle });
   initToolbar();
 
   const saved = store.get('tab');

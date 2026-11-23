@@ -1,7 +1,7 @@
 // Page interactions that aren't about the music: linking sheet <-> cards on hover/tap, the peek card,
 // popover placement, the inversion tooltip, and moving the toolbar into a panel on phones.
 import * as Practice from './practice.js';
-import { $, MOBILE } from './util.js';
+import { $, MOBILE, isMobile } from './util.js';
 
 // ---- hover/tap link between sheet and cards ----
 // lights up every place a chord is played (and its card), dims the rest
@@ -39,6 +39,7 @@ function initChordLinks() {
 function initPopovers() {
   document.querySelectorAll('[popover]').forEach(pop => pop.addEventListener('toggle', e => {
     if (e.newState !== 'open') return;
+    if (isMobile()) { pop.style.cssText = ''; return; }   // phones: CSS shows it as a bottom sheet
     const btn = document.querySelector(`[popovertarget=${pop.id}]`).getBoundingClientRect();
     pop.style.maxHeight = (innerHeight - 24) + 'px'; pop.style.overflow = 'auto';
     const w = pop.offsetWidth, h = pop.offsetHeight, left = Math.min(Math.max(12, btn.right - w), innerWidth - w - 12);
@@ -62,12 +63,16 @@ function initTooltip() {
   addEventListener('scroll', () => { if (pinned) hide(); }, { passive: true });
 }
 
-// ---- phones: the toolbar, header and key bar move into the floating Controls panel ----
+// ---- phones: the playback controls, song facts and key bar move into the Controls sheet ----
 function initMobileControls() {
-  const left = document.querySelector('.left'), sheet = $('sheet'), pop = $('ctlPop');
-  const parts = [document.querySelector('.bar'), document.querySelector('.meta'), $('trBar')];
+  const pop = $('ctlPop');
+  // remember where each part lives on desktop so it can go back there
+  const parts = [document.querySelector('.bar'), document.querySelector('.meta'), $('trBar')].map(el => ({ el, parent: el.parentNode, next: el.nextElementSibling }));
   const mq = matchMedia(MOBILE);
-  const place = () => { if (mq.matches) pop.append(...parts); else { parts.forEach(el => left.insertBefore(el, sheet)); try { pop.hidePopover(); } catch (e) {} } };
+  const place = () => {
+    if (mq.matches) pop.append(...parts.map(p => p.el));
+    else { [...parts].reverse().forEach(p => p.parent.insertBefore(p.el, p.next)); try { pop.hidePopover(); } catch (e) {} }
+  };
   mq.addEventListener('change', place); place();
   // anything that starts something (play, practice, songs, settings) closes the panel first
   pop.addEventListener('click', e => { const b = e.target.closest('#play,#pBtn,#pasteBtn,[popovertarget=setPop]'); if (b) try { pop.hidePopover(); } catch (_) {} }, true);

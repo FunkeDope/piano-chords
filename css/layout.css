@@ -1,9 +1,27 @@
-/* Layout: song sheet on the left, chord cards on the right */
-.app{display:flex;align-items:flex-start;gap:16px;padding:12px 16px}
+/* Layout: top bar, song sheet on the left, chord cards on the right */
 
-/* left: controls + sheet, sized to its content */
-.left{flex:none;display:flex;flex-direction:column;gap:10px;min-width:0}
+/* ---- top bar ---- */
+.topbar{position:sticky;top:0;z-index:4;display:flex;align-items:center;gap:12px;height:var(--hdr);padding:0 16px;
+  background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.logo{flex:none;width:34px;height:34px;border-radius:9px;background:var(--fg);color:var(--bg);display:grid;place-items:center}
+.logo svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.brand-text{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.app-name{font-weight:700;font-size:15px;letter-spacing:-.01em}
+.song-title{font-size:13px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.song-title:empty{display:none}
+.bar{display:flex;align-items:center;gap:8px}
+.scrollctl{display:flex;align-items:center;gap:4px;height:38px;padding:0 10px 0 2px;border:1px solid var(--line);border-radius:11px;background:var(--card)}
+.scrollctl #play{border:0;height:32px;width:32px;border-radius:8px}
+.scrollctl input[type=range]{width:110px;flex:none}
+.bar output{color:var(--mut);font-size:12px;min-width:4.5em;font-variant-numeric:tabular-nums}
+.actions{display:flex;align-items:center;gap:8px}
+
+/* ---- main area ---- */
+.app{display:flex;align-items:flex-start;gap:20px;padding:14px 16px}
+/* left: key bar + sheet, sized to its content */
+.left{flex:none;display:flex;flex-direction:column;gap:10px;min-width:min(440px,100%)}
 /* right: sticky full-height panel, cards fill a column then wrap */
-.panel{position:sticky;top:0;height:calc(100vh - 24px);display:flex;flex-direction:column;gap:8px;flex:1;min-width:0}
+.panel{position:sticky;top:calc(var(--hdr) + 14px);height:calc(100vh - var(--hdr) - 28px);display:flex;flex-direction:column;gap:8px;flex:1;min-width:0}
 .panel[hidden]{display:none}
 .cards{flex:1;min-height:0;display:flex;flex-direction:column;flex-wrap:wrap;align-content:flex-start;gap:8px}

@@ -1,19 +1,26 @@
 /* Practice dock: draggable panel with the big keyboard and finger moves */
-.dock{position:fixed;bottom:12px;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:0 6px 24px rgb(0 0 0 / .25)}
+.dock{position:fixed;bottom:12px;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 14px 10px;box-shadow:var(--shadow)}
 .dock[hidden]{display:none}
-.grip{height:14px;margin:-6px -4px 4px;display:flex;justify-content:center;align-items:center;cursor:grab;touch-action:none}
+.grip{height:14px;margin:-6px -4px 2px;display:flex;justify-content:center;align-items:center;cursor:grab;touch-action:none}
 .grip span{width:44px;height:5px;border-radius:3px;background:var(--line)}
 .dock .phead{cursor:grab;touch-action:none}
-.dock.floating{left:var(--fx)!important;top:var(--fy)!important;bottom:auto!important;right:auto!important;width:var(--fw)!important;border-radius:12px!important}
+.dock.floating{left:var(--fx)!important;top:var(--fy)!important;bottom:auto!important;right:auto!important;width:var(--fw)!important;border-radius:16px!important}
 .dock.dragging{cursor:grabbing;opacity:.92;user-select:none}
 .beats{display:flex;gap:5px}.beats span{width:9px;height:9px;border-radius:50%;background:var(--line)}.beats span.on{background:var(--fg)}
 body.practicing #spd,body.practicing #spu,body.practicing #spo,body.practicing #sp{display:none}
-.prow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px}
+.prow{display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap;font-size:13px}
+.phead{row-gap:2px}
+.pnext-l{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.pos{color:var(--mut);font-variant-numeric:tabular-nums}
+#pClose{font-size:22px;color:var(--mut)}
+.pnav{display:inline-flex;gap:4px}
+.ptempo{display:inline-flex;gap:10px}
+.dock .hint{font-size:12px;color:var(--mut);margin-top:6px}
 .prow label{display:flex;align-items:center;gap:5px;color:var(--mut)}
-.prow input[type=number]{width:50px;font:inherit;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+.prow input[type=number]{width:54px;height:28px;font:inherit;padding:0 6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
 .pchord{font-size:26px;font-weight:800;color:oklch(var(--L) var(--C) var(--h,0))}
 .pchord.sm{font-size:18px}
-.pmove{font-size:15px;color:var(--fg)}
+.pmove{flex-basis:100%;order:5;font-size:15px;color:var(--fg)}
 #pKb{display:block;margin:6px auto;width:100%;max-height:min(140px,21vh)}
 #pKb .pk{fill:#F1EFE8;stroke:#888780;stroke-width:.5;transition:fill .2s}
 #pKb .pk.blk{fill:#2C2C2A}
@@ -30,4 +37,3 @@ body.practicing #spd,body.practicing #spu,body.practicing #spo,body.practicing #
 #pKb .fd text{fill:#fff;font:700 12px system-ui}
 #pKb .fd.lhd text{fill:oklch(.3 .08 var(--h))}
 @media (pointer:coarse){#pPrev,#pNextBtn{width:64px;height:44px}}
-#pBtn.on{background:var(--fg);color:var(--bg)}
