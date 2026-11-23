@@ -39,6 +39,10 @@ body.practicing #sheet .ch,body.practicing #sheet .ly{cursor:pointer}
 .ch.on{background:var(--c);color:var(--bg);text-decoration:none}
 .ly.on{outline:2px solid oklch(var(--L) var(--C) var(--h));outline-offset:1px;border-radius:2px}
 body.from-card #sheet .ch:not(.on),body.from-card #sheet .ly:not(.on),body.from-card #sheet .tab,body.from-card #sheet .notes{opacity:.25}
+/* a card is selected: fade everything else on the sheet too, including plain text (section names, | bar lines, N.C.) */
+body.from-card #sheet{color:color-mix(in srgb,var(--fg) 25%,var(--bg))}
+body.from-card #sheet .sec,body.from-card #sheet .nc,body.from-card #sheet .walk{opacity:.25}
+body.from-card.plain #sheet .ly:not(.on){color:var(--fg)}
 /* a card is selected: drop the 7th-chord shading everywhere else so only that chord stands out */
 body.from-card #sheet .ch.ext:not(.on),body.from-card #sheet .ly.ext:not(.on){background:none}
 body.from-card #sheet .ly.on{outline:none;background:oklch(.7 .15 var(--h) / .35);color:var(--fg);border-radius:3px}

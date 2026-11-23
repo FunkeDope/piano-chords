@@ -88,7 +88,9 @@ function initPeekGestures() {
   addEventListener('resize', placePeek);
 }
 function initChordLinks() {
-  document.addEventListener('pointerover', e => { if (e.pointerType === 'mouse') lightUp(e.target.closest('.ch,.ly,.card')); });
+  // mouse hover lights a chord up; only on devices that really hover, so a phone's tap selection isn't undone by scrolling
+  const canHover = matchMedia('(hover: hover)');
+  document.addEventListener('pointerover', e => { if (e.pointerType === 'mouse' && canHover.matches) lightUp(e.target.closest('.ch,.ly,.card')); });
   // touch: tap a chord, a lyric or a card to light it up everywhere; tap it again (or anywhere else) to clear.
   // In practice mode a tap on the sheet moves the dock instead (see practice.js).
   let tapped = null;
